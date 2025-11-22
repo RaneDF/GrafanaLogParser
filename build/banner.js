@@ -8,9 +8,9 @@ export default `// ==UserScript==
 // @name         Grafana Log Beautifier
 // @namespace    https://github.com/RaneDF
 // @version      ${pkg.version}
-// @description  Pretty logs + removes placeholders
-// @match        *://*/*
-// @match        file:///*
+// @description  Pretty logs
+// @author       Farrukh Iskandarov
+// @match        https://dev-logs.*/*
 // @grant        none
 // ==/UserScript==
 `;
