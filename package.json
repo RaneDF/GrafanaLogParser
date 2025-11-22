@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -s"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
-    "rollup": "^4.12.0"
+    "rollup": "^4.12.0",
+    "conventional-changelog-cli": "^3.0.0",
+    "conventional-changelog-conventionalcommits": "^7.0.2"
   }
 }
