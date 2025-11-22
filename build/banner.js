@@ -9,6 +9,7 @@ export default `// ==UserScript==
 // @namespace    https://github.com/RaneDF
 // @version      ${pkg.version}
 // @description  Pretty logs
+// @author       Farrukh Iskandarov
 // @match        https://dev-logs.*/*
 // @match        file:///*
 // @grant        none
