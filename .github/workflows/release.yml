@@ -1,0 +1,76 @@
+name: Build & Release GrafanaLogParser
+
+on:
+  push:
+    branches:
+      - main       # normal pushes → build only
+    tags:
+      - "v*"       # tags like v1.2.3 → full release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      VERSION: ${{ steps.get_version.outputs.VERSION }}
+      IS_TAG: ${{ steps.check_tag.outputs.IS_TAG }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build userscript
+        run: npm run build
+
+      - name: Detect if build is a tag release
+        id: check_tag
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "IS_TAG=true" >> $GITHUB_OUTPUT
+          else
+            echo "IS_TAG=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read version from package.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Upload build artifact (main branch only)
+        uses: actions/upload-artifact@v4
+        if: steps.check_tag.outputs.IS_TAG == 'false'
+        with:
+          name: grafana-log-parser-${{ steps.get_version.outputs.VERSION }}
+          path: dist/grafana-log-parser.user.js
+
+  release:
+    needs: build
+    if: needs.build.outputs.IS_TAG == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download built artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: grafana-log-parser-${{ needs.build.outputs.VERSION }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.VERSION }}
+          name: Release v${{ needs.build.outputs.VERSION }}
+          generate_release_notes: true
+          files: |
+            grafana-log-parser.user.js
