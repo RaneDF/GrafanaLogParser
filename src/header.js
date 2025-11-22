@@ -7,8 +7,9 @@ export const metadata = `
 // @name         Grafana Log Beautifier
 // @namespace    https://github.com/RaneDF
 // @version      1.0.0
-// @description  Pretty logs + removes placeholders
-// @match        *://*/*
+// @description  Pretty logs
+// @author       Farrukh Iskandarov
+// @match        https://dev-logs.*/*
 // @match        file:///*
 // @grant        none
 // ==/UserScript==

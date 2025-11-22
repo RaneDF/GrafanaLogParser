@@ -1,38 +1,35 @@
 # 📌 Grafana Log Parser – Tampermonkey Script
 
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/RaneDF/GrafanaLogParser?sort=semver&logo=github)](https://github.com/RaneDF/GrafanaLogParser/releases/latest)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/RaneDF/GrafanaLogParser/release.yml?branch=main)](https://github.com/RaneDF/GrafanaLogParser/actions)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/RaneDF/GrafanaLogParser/release.yml?branch=main&logo=github)
+![License](https://img.shields.io/github/license/RaneDF/GrafanaLogParser)
+![Downloads](https://img.shields.io/github/downloads/RaneDF/GrafanaLogParser/total)
 
-Transforms ugly VictoriaLogs / Grafana Explore JSON logs into **beautiful interactive log blocks** inside your browser.
+Transforms raw VictoriaLogs / Grafana Explore JSON logs into **beautiful structured, readable blocks** directly inside your browser.
 
 ---
 
 ## ✨ Features
 
-- Pretty formatted JSON logs
-- Collapsible stack traces
-- Removes placeholder/empty Grafana rows
-- Color-coded severities (ERROR/WARN/INFO/DEBUG)
-- Filter logs by severity
-- Click-to-copy metadata (traceId, spanId, logger, thread)
-- Auto-updating through GitHub Releases
-- Dark UI with modern layout
+- 🔍 **Clean, readable log rendering**
+- 🧠 **Formats JSON into structured blocks**
+- 📚 **Collapsible stack traces**
+- 🧹 **Fully removes Grafana placeholder rows**
+- 🎨 **Colored severity levels (ERROR/WARN/INFO/DEBUG)**
+- 🧪 **Severity filter toolbar**
+- 📎 **Clickable metadata (traceId, spanId, logger, thread)**
+- 📋 **Copy JSON button**
+- 🕶 **Dark UI with modern styling**
+- 🔄 **Auto-updates via GitHub Releases**
 
 ---
 
 ## 🚀 Installation (Tampermonkey)
 
-Install or update the script:
+1. Install Tampermonkey (Chrome / Edge / Firefox)
+2. Click this link to install the userscript:
 
 👉 **https://github.com/RaneDF/GrafanaLogParser/releases/latest/download/grafana-log-parser.user.js**
 
-Tampermonkey will automatically pull updates when new releases appear.
+Tampermonkey will automatically check for updates and pull new versions on every browser restart.
 
----
-
-## 🛠 Development
-
-Install dependencies:
-
-```sh
-npm install
