@@ -10,10 +10,11 @@ Transform raw VictoriaLogs / Grafana Explore JSON logs into clean, readable log 
 That link is the main entry point for users.
 
 ### First time?
-1. Install **Tampermonkey** in your browser
+1. [Install **Tampermonkey** in your browser](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?pli=1) 
 2. Click **Install the latest version**
 3. Confirm installation in Tampermonkey
-4. Open Grafana logs
+4. Allow user scripts for Tampermonkey extension
+5. Open Grafana logs
 
 Tampermonkey will keep the script updated from GitHub Releases.
 
