@@ -8,7 +8,7 @@ export default {
     output: {
         file: 'dist/grafana-log-parser.user.js',
         format: 'iife',
-        banner,
+        banner
     },
     plugins: [
         json(),

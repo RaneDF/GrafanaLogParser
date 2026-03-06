@@ -1,16 +1,41 @@
-import { injectStyles } from "./styles.js";
-import { createToolbar, state } from "./toolbar.js";
-import { scanAll } from "./scanner.js";
+import { injectStyles } from './styles.js';
+import { createToolbar, setupCopyDelegation } from './toolbar.js';
+import { initialScan } from './renderer.js';
+import { setupObserver, setupRefreshClickHook } from './observer.js';
 
-(function() {
+function isSupportedLogsPage() {
+    const path = window.location.pathname || '';
+    const search = window.location.search || '';
+
+    const looksLikeGrafanaLogsPath =
+        path.startsWith('/explore') ||
+        path.startsWith('/d/') ||
+        path.startsWith('/a/');
+
+    const hasLogsIndicators =
+        search.includes('var-search=') ||
+        search.includes('var-service=') ||
+        search.includes('var-namespace=') ||
+        document.body?.innerText?.includes('traceId') ||
+        document.body?.innerText?.includes('"level"') ||
+        document.body?.innerText?.includes('"timestamp"');
+
+    return looksLikeGrafanaLogsPath && hasLogsIndicators;
+}
+
+function bootstrap() {
+    if (!isSupportedLogsPage()) return;
+
     injectStyles();
     createToolbar();
-    scanAll(state);
+    setupCopyDelegation();
+    initialScan();
+    setupObserver();
+    setupRefreshClickHook();
+}
 
-    const obs = new MutationObserver(() => scanAll(state));
-    obs.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-
-})();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap, { once: true });
+} else {
+    bootstrap();
+}

@@ -1,65 +1,90 @@
-import { TOOLBAR_ID, RAW_JSON_SELECTOR, LEVEL_COLORS } from "./config.js";
-import { removeGrafanaRowAndPlaceholders } from "./remover.js";
-import { scanAll } from "./scanner.js";
+import { CONFIG, LEVELS, LEVEL_COLORS } from './config.js';
+import { state } from './state.js';
+import { createElement, buildTraceSearchUrl, showCopiedFeedback } from './dom.js';
+import { getAllRawJsonDivs, applyFilterStateToLog, expandAll, collapseAll, rerenderVisibleLogs } from './renderer.js';
+import { getParsedJson, getLevel } from './parsers.js';
 
-export const state = {
-    ERROR: true,
-    WARN:  true,
-    INFO:  true,
-    DEBUG: true
-};
+function createLevelButton(level) {
+    const button = createElement('button', 'tm-btn', level);
+    button.style.background = LEVEL_COLORS[level];
 
-export function createToolbar() {
-    if (document.getElementById(TOOLBAR_ID)) return;
+    button.addEventListener('click', () => {
+        state[level] = !state[level];
+        button.classList.toggle('off', !state[level]);
 
-    const bar = document.createElement("div");
-    bar.id = TOOLBAR_ID;
+        getAllRawJsonDivs().forEach(element => {
+            const json = getParsedJson(element);
+            if (!json) return;
 
-    ["ERROR","WARN","INFO","DEBUG"].forEach(level => {
-        const btn = document.createElement("button");
-        btn.className = "tm-btn";
-        btn.textContent = level;
-        btn.style.background = LEVEL_COLORS[level];
+            const elementLevel = getLevel(json);
+            if (elementLevel !== level) return;
 
-        btn.onclick = () => {
-            state[level] = !state[level];
-            btn.classList.toggle("off", !state[level]);
-
-            if (!state[level]) {
-                document.querySelectorAll(RAW_JSON_SELECTOR).forEach(div => {
-                    const raw = div.innerText.trim();
-                    if (!raw.startsWith("{")) return;
-                    try {
-                        const j = JSON.parse(raw);
-                        if ((j.level || "").toUpperCase() === level)
-                            removeGrafanaRowAndPlaceholders(div);
-                    } catch {}
-                });
-
-                document.querySelectorAll(".tm-container")
-                    .forEach(c => c.dataset.level === level && c.remove());
-            } else {
-                scanAll(state);
-            }
-        };
-
-        bar.appendChild(btn);
+            applyFilterStateToLog(element, level);
+        });
     });
 
-    const exp = document.createElement("button");
-    exp.className = "tm-btn";
-    exp.textContent = "Expand All";
-    exp.onclick = () => {
-        document.querySelectorAll(".tm-details").forEach(d => d.open = true);
-    };
+    return button;
+}
 
-    const col = document.createElement("button");
-    col.className = "tm-btn";
-    col.textContent = "Collapse All";
-    col.onclick = () => {
-        document.querySelectorAll(".tm-details").forEach(d => d.open = false);
-    };
+function createActionButton(label, handler) {
+    const button = createElement('button', 'tm-btn', label);
+    button.addEventListener('click', handler);
+    return button;
+}
 
-    bar.append(exp, col);
-    document.body.prepend(bar);
+export function createToolbar() {
+    if (document.getElementById(CONFIG.toolbarId)) return;
+
+    const toolbar = createElement('div');
+    toolbar.id = CONFIG.toolbarId;
+
+    LEVELS.forEach(level => toolbar.appendChild(createLevelButton(level)));
+
+    toolbar.append(
+        createActionButton('Expand All', expandAll),
+        createActionButton('Collapse All', collapseAll),
+        createActionButton('Re-scan Logs', () => rerenderVisibleLogs(true))
+    );
+
+    document.body.prepend(toolbar);
+}
+
+async function copyToClipboard(text) {
+    await navigator.clipboard.writeText(text);
+}
+
+function handleTraceClick(event, traceTarget) {
+    const traceId = traceTarget.dataset.traceId;
+    if (!traceId) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    window.open(buildTraceSearchUrl(traceId), '_blank', 'noopener,noreferrer');
+}
+
+export function setupCopyDelegation() {
+    document.addEventListener('click', async event => {
+        const traceTarget = event.target.closest('.tm-meta-link[data-trace-id]');
+        if (traceTarget) {
+            handleTraceClick(event, traceTarget);
+            return;
+        }
+
+        const copyTarget = event.target.closest('.tm-meta-secondary[data-copy]');
+        if (!copyTarget) return;
+
+        try {
+            await copyToClipboard(copyTarget.dataset.copy || '');
+            showCopiedFeedback(copyTarget);
+        } catch {}
+    }, true);
+
+    document.addEventListener('auxclick', event => {
+        if (event.button !== 1) return;
+
+        const traceTarget = event.target.closest('.tm-meta-link[data-trace-id]');
+        if (!traceTarget) return;
+
+        handleTraceClick(event, traceTarget);
+    }, true);
 }

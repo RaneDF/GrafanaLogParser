@@ -1,7 +1,8 @@
-export const RAW_JSON_SELECTOR = 'div.css-ckyukb';
-export const ROW_CLASS_TOKEN = 'css-9faaom-logs-row';
-export const DETAILS_SELECTOR = 'div.css-1ut96kz-logs-row-details-table';
-export const PLACEHOLDER_MIN_HEIGHT = 4;
+export const CONFIG = {
+    rawJsonSelector: 'div.css-ckyukb',
+    toolbarId: 'tm-victoria-toolbar',
+    styleId: 'tm-vic-style'
+};
 
 export const META_KEYS = [
     'timestamp',
@@ -12,11 +13,20 @@ export const META_KEYS = [
     'spanId'
 ];
 
+export const LEVELS = ['ERROR', 'WARN', 'INFO', 'DEBUG'];
+
 export const LEVEL_COLORS = {
     ERROR: '#E53935',
-    WARN:  '#FF9800',
-    INFO:  '#43A047',
+    WARN: '#FF9800',
+    INFO: '#43A047',
     DEBUG: '#42A5F5'
 };
 
-export const TOOLBAR_ID = 'tm-victoria-toolbar';
+export const STACK_KEYS = [
+    'stack_trace',
+    'stackTrace',
+    'stacktrace',
+    'exception',
+    'errorStack',
+    'throwable'
+];

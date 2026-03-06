@@ -7,7 +7,6 @@ on:
     tags:
       - "v*"
 
-
 permissions:
   contents: write
 
@@ -18,6 +17,7 @@ jobs:
     outputs:
       VERSION: ${{ steps.get_version.outputs.VERSION }}
       IS_TAG: ${{ steps.check_tag.outputs.IS_TAG }}
+      TAG_NAME: ${{ steps.get_tag.outputs.TAG_NAME }}
 
     steps:
       - name: Checkout
@@ -49,7 +49,28 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
-      # ⬇️ FIX — artifact must be uploaded for BOTH tag & branch builds
+      - name: Read pushed tag name
+        id: get_tag
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "TAG_NAME=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify tag matches package.json
+        if: steps.check_tag.outputs.IS_TAG == 'true'
+        run: |
+          EXPECTED_TAG="v${{ steps.get_version.outputs.VERSION }}"
+          ACTUAL_TAG="${{ steps.get_tag.outputs.TAG_NAME }}"
+
+          if [[ "$EXPECTED_TAG" != "$ACTUAL_TAG" ]]; then
+            echo "Tag does not match package.json version"
+            echo "Expected: $EXPECTED_TAG"
+            echo "Actual:   $ACTUAL_TAG"
+            exit 1
+          fi
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -62,9 +83,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Download built artifact
         uses: actions/download-artifact@v4
         with:
@@ -74,7 +92,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.build.outputs.VERSION }}
-          name: Release v${{ needs.build.outputs.VERSION }}
+          tag_name: ${{ needs.build.outputs.TAG_NAME }}
+          name: Release ${{ needs.build.outputs.TAG_NAME }}
           generate_release_notes: true
           files: grafana-log-parser.user.js
