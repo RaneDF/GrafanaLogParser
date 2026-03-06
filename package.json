@@ -1,6 +1,6 @@
 {
   "name": "grafana-log-parser",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
